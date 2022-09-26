@@ -55,7 +55,7 @@ jobs:
       - name: Zip the app contents
         uses: papeloto/action-zip@v1
         with:
-          files: node-hello
+          files: /home/runner/work/node-hello/node-hello/node-hello/node-app
           dest: node-app.zip
 
       - name: Set SAS token expiration
