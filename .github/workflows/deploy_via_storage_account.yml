@@ -52,11 +52,11 @@ jobs:
         with:
           name: node-app
 
-      # - name: Zip the app contents
-      #   uses: papeloto/action-zip@v1
-      #   with:
-      #     files: node-app.zip
-      #     dest: node-app.zip
+      - name: Zip the app contents
+        uses: papeloto/action-zip@v1
+        with:
+          files: node-app.zip
+          dest: node-app.zip
 
       - name: Set SAS token expiration
         run: echo "expiry=`date -u -d "$EXPIRY_TIME" '+%Y-%m-%dT%H:%MZ'`" >> $GITHUB_ENV
