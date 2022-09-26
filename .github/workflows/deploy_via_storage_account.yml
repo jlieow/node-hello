@@ -9,8 +9,8 @@ on:
 env:
   WEBAPP: linux-as
   GROUP: jerome-to-be-deleted-deploy-test
-  ACCOUNT: gastorageacct # Does not have to exist, this will be created for you
-  CONTAINER: ga_storage_container
+  ACCOUNT: nodehello001st # Does not have to exist, this will be created for you
+  CONTAINER: nodehello001c
   EXPIRY_TIME: 10 minutes
   LOCATION: southeastasia
 
