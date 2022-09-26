@@ -9,8 +9,8 @@ on:
 env:
   WEBAPP: linux-as
   GROUP: jerome-to-be-deleted-deploy-test
-  ACCOUNT: github-actions-storage-acct # Does not have to exist, this will be created for you
-  CONTAINER: github-actions-storage-container
+  ACCOUNT: ga-storage-acct # Does not have to exist, this will be created for you
+  CONTAINER: ga-storage-container
   EXPIRY_TIME: 10 minutes
   LOCATION: southeastasia
 
