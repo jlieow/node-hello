@@ -9,7 +9,7 @@ on:
 env:
   WEBAPP: linux-as
   GROUP: jerome-to-be-deleted-deploy-test
-  ACCOUNT: ga_storage_acct # Does not have to exist, this will be created for you
+  ACCOUNT: gastorageacct # Does not have to exist, this will be created for you
   CONTAINER: ga_storage_container
   EXPIRY_TIME: 10 minutes
   LOCATION: southeastasia
