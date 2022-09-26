@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  SUBSCRIPTIONID: 2c964fb7-4cdf-421e-8cdf-54cd2e2cc6b5
+  SUBSCRIPTIONID: ${{ secrets.SUBSCRIPTIONID }}
   WEBAPP: linux-as
   GROUP: jerome-to-be-deleted-deploy-test
   ACCOUNT: nodehello001st # Does not have to exist, this will be created for you
