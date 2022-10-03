@@ -1,0 +1,82 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy dotnet core app to Azure Function App - swiftid-apione-dev-fx
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '6.0.x' # set this to the dotnet version to use
+  WEBAPP: webapp-or-function-app-name
+  GROUP: resource-group-name
+  ACCOUNT: storage-account-name # Does not have to exist, this will be created for you
+  CONTAINER: storage-container-name
+  EXPIRY_TIME: 10 minutes
+  LOCATION: location
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v2
+
+      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: 'Resolve Project Dependencies Using Dotnet'
+        shell: pwsh
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet build --configuration Release --output ./output
+          popd
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: ./output
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output
+          path: output
+
+      - name: Zip the app contents
+        uses: papeloto/action-zip@v1
+        with:
+          files: output
+          dest: output.zip
+
+      - name: Set SAS token expiration
+        run: echo "expiry=`date -u -d "$EXPIRY_TIME" '+%Y-%m-%dT%H:%MZ'`" >> $GITHUB_ENV
+
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: 2.30.0
+          inlineScript: |
+            az extension add --name webapp
+            az storage account create   -n $ACCOUNT   -g $GROUP -l $LOCATION
+            az storage container create -n $CONTAINER --account-name $ACCOUNT
+            az storage blob upload      -f output.zip    --account-name $ACCOUNT -c $CONTAINER -n $ACCOUNT
+            ZIP_URL=$(az storage blob generate-sas --full-uri --permissions r --expiry ${{ env.expiry }} --account-name $ACCOUNT -c $CONTAINER -n $ACCOUNT | xargs)
+            az rest --method PUT --uri https://management.azure.com/subscriptions/${{ secrets.SUBSCRIPTIONID }}/resourceGroups/${GROUP}/providers/Microsoft.Web/sites/${WEBAPP}/extensions/onedeploy?api-version=2022-03-01 --body '{"properties": {"type": "zip", "packageUri": "'"${ZIP_URL}"'" }}'
+            az storage container delete -n $CONTAINER --account-name $ACCOUNT

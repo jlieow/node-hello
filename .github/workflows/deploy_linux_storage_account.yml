@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
 
 env:
-  WEBAPP: linux-as
-  GROUP: jerome-to-be-deleted-deploy-test
-  ACCOUNT: nodehello001st # Does not have to exist, this will be created for you
-  CONTAINER: nodehello001c
+  WEBAPP: webapp-or-function-app-name
+  GROUP: resource-group-name
+  ACCOUNT: storage-account-name # Does not have to exist, this will be created for you
+  CONTAINER: storage-container-name
   EXPIRY_TIME: 10 minutes
-  LOCATION: southeastasia
+  LOCATION: location
 
 jobs:
   build:
