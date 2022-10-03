@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 env:
-  WEBAPP: webapp-or-function-app-name
+  WEB_APP: webapp-or-function-app-name
   GROUP: resource-group-name
-  ACCOUNT: storage-account-name # Does not have to exist, this will be created for you
-  CONTAINER: storage-container-name
+  STORAGE_ACCOUNT: storage-account-name # Does not have to exist, this will be created for you
+  STORAGE_CONTAINER: storage-container-name
   EXPIRY_TIME: 10 minutes
   LOCATION: location
 
@@ -69,12 +69,12 @@ jobs:
           inlineScript: |
             az extension add --name webapp
 
-            az storage account create   -n $ACCOUNT   -g $GROUP -l $LOCATION
-            az storage container create -n $CONTAINER --account-name $ACCOUNT
-            az storage blob upload      -f node-app.zip    --account-name $ACCOUNT -c $CONTAINER -n $ACCOUNT
+            az storage account create   -n $STORAGE_ACCOUNT   -g $GROUP -l $LOCATION
+            az storage container create -n $STORAGE_CONTAINER --account-name $STORAGE_ACCOUNT
+            az storage blob upload      -f node-app.zip    --account-name $STORAGE_ACCOUNT -c $STORAGE_CONTAINER -n $STORAGE_ACCOUNT
 
-            ZIP_URL=$(az storage blob generate-sas --full-uri --permissions r --expiry ${{ env.expiry }} --account-name $ACCOUNT -c $CONTAINER -n $ACCOUNT | xargs)
+            ZIP_URL=$(az storage blob generate-sas --full-uri --permissions r --expiry ${{ env.expiry }} --account-name $STORAGE_ACCOUNT -c $STORAGE_CONTAINER -n $STORAGE_ACCOUNT | xargs)
 
-            az rest --method PUT --uri https://management.azure.com/subscriptions/${{ secrets.SUBSCRIPTIONID }}/resourceGroups/${GROUP}/providers/Microsoft.Web/sites/${WEBAPP}/extensions/onedeploy?api-version=2022-03-01 --body '{"properties": {"type": "zip", "packageUri": "'"${ZIP_URL}"'" }}'
+            az rest --method PUT --uri https://management.azure.com/subscriptions/${{ secrets.SUBSCRIPTIONID }}/resourceGroups/${GROUP}/providers/Microsoft.Web/sites/${WEB_APP}/extensions/onedeploy?api-version=2022-03-01 --body '{"properties": {"type": "zip", "packageUri": "'"${ZIP_URL}"'" }}'
 
-            az storage container delete -n $CONTAINER --account-name $ACCOUNT
+            az storage container delete -n $STORAGE_CONTAINER --account-name $STORAGE_ACCOUNT
